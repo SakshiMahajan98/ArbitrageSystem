@@ -13,12 +13,51 @@ import lombok.ToString;
 
 @Document(collection = "Stocks")
 public class StockDetails {
-	@Id
+	
 	private int SrNo;
+	@Id
 	private String Symbol;  //name of the company
 	private double NSE;
 	private double BSE;
 	private double difference;
+	private double like;
+	private double noOfStocks;
+	
+	public StockDetails() {
+		super();
+	}
+
+
+	@Override
+	public String toString() {
+		return "StockDetails [SrNo=" + SrNo + ", Symbol=" + Symbol + ", NSE=" + NSE + ", BSE=" + BSE + ", difference="
+				+ difference + ", like=" + like + ", noOfStocks=" + noOfStocks + "]";
+	}
+	
+	
+	public StockDetails(int srNo, String symbol, double nSE, double bSE, double difference, double like,
+			double noOfStocks) {
+		super();
+		SrNo = srNo;
+		Symbol = symbol;
+		NSE = nSE;
+		BSE = bSE;
+		this.difference = difference;
+		this.like = like;
+		this.noOfStocks = noOfStocks;
+	}
+	public double getNoOfStocks() {
+		return noOfStocks;
+	}
+	public void setNoOfStocks(double noOfStocks) {
+		this.noOfStocks = noOfStocks;
+	}
+	public double getLike() {
+		return like;
+	}
+	public void setLike(double like) {
+		this.like = like;
+	}
 	public int getSrNo() {
 		return SrNo;
 	}

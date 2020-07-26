@@ -14,48 +14,60 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Example;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.javatechie.spring.mongo.api.model.StockDetails;
 import com.javatechie.spring.mongo.api.model.User;
 import com.javatechie.spring.mongo.api.repository.StockDatabase;
 import com.javatechie.spring.mongo.api.repository.UserRepository;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCursor;
+import com.mongodb.client.result.UpdateResult;
+
 
 @RestController
+@CrossOrigin(origins = "http://localhost:8080")
 public class StockController {
+	private ArrayList<StockDetails> StockList;
+	private List<StockDetails> savedList;
 
 	@Autowired
 	private StockDatabase DB;
 
 	@GetMapping("/findAllStocks")
 	public List<StockDetails> getUsers() {
+		savedList = DB.findAll();
 		return DB.findAll();
 	}
 
-	@GetMapping("/findAllStocks/{id}")
-	public Optional<StockDetails> getUser(@PathVariable int id) {
-		return DB.findById(id);
-	}
-
+	/*
+	 * @GetMapping("/findAllStocks/{id}") public Optional<StockDetails>
+	 * getUser(@PathVariable int id) { return DB.findById(id); }
+	 */
 	
 
 	//@Autowired
-	private ArrayList<StockDetails> StockList;
+	
 	
 	@GetMapping("/")
-	@CrossOrigin(origins = "http://localhost:8080")   //use 4200 for angular
+	@CrossOrigin(origins = "http://localhost:8080")   //use 4200 for angular 
 	public Collection<StockDetails> home() throws IOException, JSONException{		
 		StockList=new ArrayList<StockDetails>();
 		String Stocks[]= {"yesbank","wipro","tatamotors","hcltech","coalindia","bajaj-auto","zeel","ioc","bpcl","cipla","techm","icicibank","sunpharma","itc","tcs","heromotoco","hindunilvr","ntpc","maruti","axisbank","infratel","powergrid","ongc","indusindbk","reliance","lt","sbin","hdfc","hindalco","m&m","kotakbank","infy","eichermot","drreddy","hdfcbank","vedl","bajajfinsv","adaniports","gail","upl","tatasteel","grasim","titan","britannia","bajfinance","jswsteel","ultracemco","bhartiartl","ibulhsgfin","asianpaint"};
 		String ip="";
 		String Data="";
 		String Api="https://query1.finance.yahoo.com/v7/finance/quote?symbols=";
+		savedList=this.getUsers();
 		for(int i=0;i<50;i++) {
 			Api="https://query1.finance.yahoo.com/v7/finance/quote?symbols=";
 			Api=Api+Stocks[i]+".ns";   //preparing URL to be hit for each and every company listed in the array above
@@ -79,11 +91,21 @@ public class StockController {
 			JSONArray dataarray1=(JSONArray) Object1.get("result");
 			Object=dataarray1.getJSONObject(0);
 			s.setBSE(Double.valueOf(Object.get("regularMarketPrice").toString()));
-			
 			s.calculate_diff();
 			StockList.add(s);
-			
 			DB.save(s);
+		}
+		return StockList;
+	}
+	
+	public ArrayList<StockDetails> compareList()
+	{
+		for(int i=0;i<StockList.size();i++)
+		{
+			if(savedList.get(i).getLike()!=StockList.get(i).getLike())
+			{
+				StockList.get(i).setLike(savedList.get(i).getLike());
+			}
 		}
 		return StockList;
 	}
@@ -104,9 +126,100 @@ public class StockController {
         return d;
 	}
 	
+		
+	@GetMapping("/save/{company}")
+	@CrossOrigin(origins = "http://localhost:8080") 
+	public int saveInCart(@PathVariable(value = "company") String company) {	
+		System.out.println(StockList);
+		System.out.println("Before adding to the list ! "); //search company int
+		for(StockDetails se:StockList)
+		{
+			System.out.println("Inside for : ");
+			if(se.getSymbol().equals(company))
+			{
+			System.out.println("Hello ji ::"+se.getLike()); 
+			if(se.getLike()==0)
+			{
+				se.setLike(1);
+			}
+			else
+			{
+				se.setLike(0);
+			}
+			System.out.println("Hello ji ::"+se.getLike()+" ");
+			break;
+			} 
+		}
+		DB.deleteAll();
+		for(int i=0; i<50;i++) {
+			DB.save(StockList.get(i));
+		}
+		return 0;
+	}
+	
+	@GetMapping("/setCart")
+	@CrossOrigin(origins = "http://localhost:8080") 
+	public Object[] setCart() {
+		ArrayList<StockDetails> cart = new ArrayList<>();
+		Object[] cartArray = new Object[2]; 
+		for(StockDetails se:StockList)
+		{
+			System.out.println("Inside for : ");
+			if(se.getLike()==1)
+			{
+			cart.add(se);
+			} 
+		}
+		System.out.println("Returning cart ...");
+		cartArray[0]= cart.size();
+		cartArray[1]=cart;
+		return cartArray;
+	}
+
 	
 	
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/*
 	 * @GetMapping("/sorted")
 	 * 
