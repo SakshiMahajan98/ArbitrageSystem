@@ -67,6 +67,7 @@ public class StockController {
 		String ip="";
 		String Data="";
 		String Api="https://query1.finance.yahoo.com/v7/finance/quote?symbols=";
+		ArrayList<StockDetails> sorted_StockList=new ArrayList<StockDetails>();
 		savedList=this.getUsers();
 		for(int i=0;i<50;i++) {
 			Api="https://query1.finance.yahoo.com/v7/finance/quote?symbols=";
@@ -86,6 +87,7 @@ public class StockController {
         	if(savedList.size()!=0 && savedList.get(i).getLike()==1)
         	{
         		s.setLike(1);
+        		s.setNoOfStocks(savedList.get(i).getNoOfStocks());
         	}
         	Api="https://query1.finance.yahoo.com/v7/finance/quote?symbols=";
         	Api=Api+s.getSymbol()+".bo";
@@ -97,9 +99,10 @@ public class StockController {
 			s.setBSE(Double.valueOf(Object.get("regularMarketPrice").toString()));
 			s.calculate_diff();
 			StockList.add(s);
+			sorted_StockList.add(s);
 			DB.save(s);
 		}
-		ArrayList<StockDetails> sorted_StockList=StockList;
+		
 		Collections.sort(sorted_StockList,Collections.reverseOrder());
 		ty[0]=sorted_StockList;
 		ty[1]=StockList;
@@ -117,6 +120,14 @@ public class StockController {
 //		}
 //		return StockList;
 //	}
+	
+	@GetMapping("/stock")
+	public ArrayList<StockDetails> getlist()
+	{
+		return StockList;
+	}
+	
+
 	
 	public String getDataFromURL(String U) throws IOException {
         URL obj = new URL(U);
@@ -149,6 +160,7 @@ public class StockController {
 			if(se.getLike()==0)
 			{
 				se.setLike(1);
+				
 			}
 			else
 			{
@@ -170,7 +182,7 @@ public class StockController {
 	public Object[] setCart() {
 		ArrayList<StockDetails> cart = new ArrayList<>();
 		Object[] cartArray = new Object[2]; 
-		for(StockDetails se:StockList)
+		for(StockDetails se:DB.findAll())
 		{
 			System.out.println("Inside for : ");
 			if(se.getLike()==1)
@@ -190,6 +202,38 @@ public class StockController {
 	}
 
 	
+	@GetMapping("/save/{company}/{value}")
+	@CrossOrigin(origins = "http://localhost:4200") 
+	public int saveInCart(@PathVariable String company,@PathVariable double value) {	
+		System.out.println(StockList);
+		System.out.println("Before adding to the list ! "); //search company int
+		for(StockDetails se:StockList)
+		{
+			System.out.println("Inside for : ");
+			if(se.getSymbol().equals(company))
+			{
+			System.out.println("Hello ji ::"+se.getLike()); 
+			if(se.getLike()==0)
+			{
+				se.setLike(1);
+				se.setNoOfStocks(value);
+				
+			}
+			else
+			{
+				se.setLike(0);
+				se.setNoOfStocks(0);
+			}
+			System.out.println("Hello ji ::"+se.getLike()+" ");
+			break;
+			} 
+		}
+		DB.deleteAll();
+		for(int i=0; i<50;i++) {
+			DB.save(StockList.get(i));
+		}
+		return 0;
+	}
 	
 
 	
