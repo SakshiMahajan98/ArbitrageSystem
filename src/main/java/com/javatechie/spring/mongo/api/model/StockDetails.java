@@ -12,7 +12,7 @@ import lombok.ToString;
 @ToString
 
 @Document(collection = "Stocks")
-public class StockDetails {
+public class StockDetails implements Comparable<StockDetails>{
 	
 	private int SrNo;
 	@Id
@@ -34,6 +34,11 @@ public class StockDetails {
 				+ difference + ", like=" + like + ", noOfStocks=" + noOfStocks + "]";
 	}
 	
+	@Override 
+	public int compareTo(StockDetails s)
+	{
+		return (this.getDifference()<s.getDifference()?-1:(this.getDifference()==s.getDifference()?0:1));
+	}
 	
 	public StockDetails(int srNo, String symbol, double nSE, double bSE, double difference, double like,
 			double noOfStocks) {
@@ -89,7 +94,9 @@ public class StockDetails {
 		this.difference = difference;
 	}
 	public void calculate_diff() {
-		double difference=Math.abs(this.BSE-this.NSE);
+		double value=Math.abs(this.BSE-this.NSE);
+		double difference=(double)Math.round(value * 10000d) / 10000d;
 		this.setDifference(difference);
+		
 	}
 }

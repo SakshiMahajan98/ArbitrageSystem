@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +37,7 @@ import com.mongodb.client.result.UpdateResult;
 
 
 @RestController
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin(origins = "http://localhost:4200")
 public class StockController {
 	private ArrayList<StockDetails> StockList;
 	private List<StockDetails> savedList;
@@ -55,14 +56,13 @@ public class StockController {
 	 * getUser(@PathVariable int id) { return DB.findById(id); }
 	 */
 	
-
-	//@Autowired
 	
 	
 	@GetMapping("/")
-	@CrossOrigin(origins = "http://localhost:8080")   //use 4200 for angular 
-	public Collection<StockDetails> home() throws IOException, JSONException{		
+	@CrossOrigin(origins = "http://localhost:4200")   //use 4200 for angular 
+	public Object[] home() throws IOException, JSONException{		
 		StockList=new ArrayList<StockDetails>();
+		Object[] ty=new Object[2];
 		String Stocks[]= {"yesbank","wipro","tatamotors","hcltech","coalindia","bajaj-auto","zeel","ioc","bpcl","cipla","techm","icicibank","sunpharma","itc","tcs","heromotoco","hindunilvr","ntpc","maruti","axisbank","infratel","powergrid","ongc","indusindbk","reliance","lt","sbin","hdfc","hindalco","m&m","kotakbank","infy","eichermot","drreddy","hdfcbank","vedl","bajajfinsv","adaniports","gail","upl","tatasteel","grasim","titan","britannia","bajfinance","jswsteel","ultracemco","bhartiartl","ibulhsgfin","asianpaint"};
 		String ip="";
 		String Data="";
@@ -80,9 +80,13 @@ public class StockController {
 			
 			StockDetails s=new StockDetails();
 			s.setSrNo(i+1);
-			s.setSymbol(Stocks[i]);
+			s.setSymbol(Stocks[i].toUpperCase());
         	s.setNSE(Double.valueOf(Object.get("regularMarketPrice").toString()));  //avg value of the stock
-        	
+        	//s.setLike=1
+        	if(savedList.size()!=0 && savedList.get(i).getLike()==1)
+        	{
+        		s.setLike(1);
+        	}
         	Api="https://query1.finance.yahoo.com/v7/finance/quote?symbols=";
         	Api=Api+s.getSymbol()+".bo";
         	String Data1=getDataFromURL(Api);
@@ -95,20 +99,24 @@ public class StockController {
 			StockList.add(s);
 			DB.save(s);
 		}
-		return StockList;
+		ArrayList<StockDetails> sorted_StockList=StockList;
+		Collections.sort(sorted_StockList,Collections.reverseOrder());
+		ty[0]=sorted_StockList;
+		ty[1]=StockList;
+		return ty;
 	}
 	
-	public ArrayList<StockDetails> compareList()
-	{
-		for(int i=0;i<StockList.size();i++)
-		{
-			if(savedList.get(i).getLike()!=StockList.get(i).getLike())
-			{
-				StockList.get(i).setLike(savedList.get(i).getLike());
-			}
-		}
-		return StockList;
-	}
+//	public ArrayList<StockDetails> compareList()
+//	{
+//		for(int i=0;i<StockList.size();i++)
+//		{
+//			if(savedList.get(i).getLike()!=StockList.get(i).getLike())
+//			{
+//				StockList.get(i).setLike(savedList.get(i).getLike());
+//			}
+//		}
+//		return StockList;
+//	}
 	
 	public String getDataFromURL(String U) throws IOException {
         URL obj = new URL(U);
@@ -128,7 +136,7 @@ public class StockController {
 	
 		
 	@GetMapping("/save/{company}")
-	@CrossOrigin(origins = "http://localhost:8080") 
+	@CrossOrigin(origins = "http://localhost:4200") 
 	public int saveInCart(@PathVariable(value = "company") String company) {	
 		System.out.println(StockList);
 		System.out.println("Before adding to the list ! "); //search company int
@@ -158,7 +166,7 @@ public class StockController {
 	}
 	
 	@GetMapping("/setCart")
-	@CrossOrigin(origins = "http://localhost:8080") 
+	@CrossOrigin(origins = "http://localhost:4200") 
 	public Object[] setCart() {
 		ArrayList<StockDetails> cart = new ArrayList<>();
 		Object[] cartArray = new Object[2]; 
@@ -170,9 +178,14 @@ public class StockController {
 			cart.add(se);
 			} 
 		}
+		StockDetails[] savedcart=new StockDetails[cart.size()];
+		for(int i=0;i<cart.size();i++)
+		{ 
+			savedcart[i]=cart.get(i);
+		}
 		System.out.println("Returning cart ...");
 		cartArray[0]= cart.size();
-		cartArray[1]=cart;
+		cartArray[1]=savedcart;
 		return cartArray;
 	}
 
