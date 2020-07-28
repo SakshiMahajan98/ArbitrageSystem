@@ -1,0 +1,6 @@
+net\javaguides\springboot\helloworldapp\bean\AuthenticationBean.class
+net\javaguides\springboot\helloworldapp\bean\Greeting.class
+net\javaguides\springboot\helloworldapp\controller\GreetingController.class
+net\javaguides\springboot\helloworldapp\controller\BasicAuthController.class
+net\javaguides\springboot\helloworldapp\Application.class
+net\javaguides\springboot\helloworldapp\config\SpringSecurityConfig.class
