@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,6 +89,7 @@ public class StockController {
         	if(savedList.size()!=0 && savedList.get(i).getLike()==1)
         	{
         		s.setLike(1);
+        		s.setDate(savedList.get(i).getDate());
         		s.setNoOfStocks(savedList.get(i).getNoOfStocks());
         	}
         	Api="https://query1.finance.yahoo.com/v7/finance/quote?symbols=";
@@ -160,11 +163,16 @@ public class StockController {
 			if(se.getLike()==0)
 			{
 				se.setLike(1);
+				 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  
+				 Date date = new Date();  
+		         se.setDate(formatter.format(date)); 
+				
 				
 			}
 			else
 			{
 				se.setLike(0);
+				
 			}
 			System.out.println("Hello ji ::"+se.getLike()+" ");
 			break;
@@ -217,6 +225,9 @@ public class StockController {
 			{
 				se.setLike(1);
 				se.setNoOfStocks(value);
+				 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  
+				 Date date = new Date();  
+		         se.setDate(formatter.format(date)); 
 				
 			}
 			else

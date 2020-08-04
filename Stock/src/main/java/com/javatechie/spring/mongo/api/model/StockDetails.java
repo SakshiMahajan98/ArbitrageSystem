@@ -1,5 +1,7 @@
 package com.javatechie.spring.mongo.api.model;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -22,6 +24,7 @@ public class StockDetails implements Comparable<StockDetails>{
 	private double difference;
 	private double like;
 	private double noOfStocks;
+	private String date;
 	
 	public StockDetails() {
 		super();
@@ -99,4 +102,18 @@ public class StockDetails implements Comparable<StockDetails>{
 		this.setDifference(difference);
 		
 	}
+
+
+	public String getDate() {
+		return date;
+	}
+
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+
+	
+	
 }
